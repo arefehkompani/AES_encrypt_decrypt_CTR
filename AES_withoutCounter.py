@@ -14,16 +14,21 @@ with open('key.txt', 'w') as f:
         f.write("%s\n" % line)
 f.close()
 
+def readkey():
+    readkeyf = open("key.txt", "r")
+    readkey = readkeyf.read()
+    readkeyf.close()
+    return readkey
+
+keyfile = readkey()
+keyWithSalt = keyfile.split('\n')
+key256 = pbkdf2.PBKDF2(keyWithSalt[0], keyWithSalt[1]).read(32)
+toHex = binascii.hexlify(key256)
+print('\nAlgorithm key is: ')
+print(toHex)
+print('\n')
+
 def UI():
-
-    keyfile = readkey()
-    keyWithSalt = keyfile.split('\n')
-    key256 = pbkdf2.PBKDF2(keyWithSalt[0], keyWithSalt[1]).read(32)
-    toHex = binascii.hexlify(key256)
-    print('\nAlgorithm key is: ')
-    print(toHex)
-    print('\n')
-
     iv = secrets.randbits(256)
 
     print('Please choose one of the following options: \n1-Encryption \n2-Decryption\n')
@@ -43,27 +48,11 @@ def UI():
 
         # Write ciphertext
         fileCipher = open("ciphertext.txt", "w")
-        print(ciphertext)
         fileCipher.write(str(binascii.hexlify(ciphertext)))
         fileCipher.close()
         
-        # Decryption
-        readCipher = open("ciphertext.txt", "r")
-        ct = readCipher.read()
-        readCipher.close()
-       
-        ct = ct.lstrip(ct[0:2])
-        ct = ct[:len(ct)-1]
-        ct = binascii.unhexlify(ct)
-
-        aes2 = pyaes.AESModeOfOperationCTR(key256)
-        decrypted = aes2.decrypt(ct)
-
-        print("Decrypted: ")
-        print(decrypted)
-        print('---------------------------')
-        
         UI()
+
     elif action == '2' or action == 'D' :
         
         readCipher = open("ciphertext.txt", "r")
@@ -82,14 +71,9 @@ def UI():
         print('------------------------------------------')
 
         UI()
+
     else:
         print('\nThe selected option is wrong. Please try again')
         UI()
 
-def readkey():
-    readkeyf = open("key.txt", "r")
-    readkey = readkeyf.read()
-    readkeyf.close()
-    return readkey
-    
 UI()

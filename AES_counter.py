@@ -25,62 +25,37 @@ def UI():
 
     iv = secrets.randbits(256)
 
-    print('Please choose one of the following options: \n1-Encryption \n2-Decryption\n')
-    action = input()
+    
+    # Encryption
+    filePlain = open("plaintext.txt", "r")
+    pt = filePlain.read()
+    filePlain.close()
 
-    if action == '1' or action == 'E' :
-        # Encryption
-        filePlain = open("plaintext.txt", "r")
-        pt = filePlain.read()
-        filePlain.close()
+    aes1 = pyaes.AESModeOfOperationCTR(key256, pyaes.Counter(iv))
+    ciphertext = aes1.encrypt(pt)
+    print('Encrypted:', binascii.hexlify(ciphertext))
+    print('------------------------------------------')
 
-        aes1 = pyaes.AESModeOfOperationCTR(key256, pyaes.Counter(iv))
-        ciphertext = aes1.encrypt(pt)
-        print('Encrypted:', binascii.hexlify(ciphertext))
-        print('------------------------------------------')
+    fileCipher = open("ciphertext.txt", "w")
+    fileCipher.write(str(binascii.hexlify(ciphertext)))
+    fileCipher.close()
+    
+    # Decryption
+    readCipher = open("ciphertext.txt", "r")
+    ct = readCipher.read()
+    readCipher.close()
+    
+    ct = ct.lstrip(ct[0:2])
+    ct = ct[:len(ct)-1]
+    ct = binascii.unhexlify(ct)
 
-        fileCipher = open("ciphertext.txt", "w")
-        print(ciphertext)
-        fileCipher.write(str(binascii.hexlify(ciphertext)))
-        fileCipher.close()
+    aes2 = pyaes.AESModeOfOperationCTR(key256, pyaes.Counter(iv))
+    decrypted = aes2.decrypt(ct)
+    print("Decrypted: ")
+    print(decrypted)
+    print('---------------------------')
         
-        # Decryption
-        readCipher = open("ciphertext.txt", "r")
-        ct = readCipher.read()
-        readCipher.close()
        
-        ct = ct.lstrip(ct[0:2])
-        ct = ct[:len(ct)-1]
-        ct = binascii.unhexlify(ct)
-        print(ct)
-        aes2 = pyaes.AESModeOfOperationCTR(key256, pyaes.Counter(iv))
-        decrypted = aes2.decrypt(ct)
-        print("Decrypted: ")
-        print(decrypted)
-        print('---------------------------')
-        
-        UI()
-    elif action == '2' or action == 'D' :
-        
-        readCipher = open("ciphertext.txt", "r")
-        ct = readCipher.read()
-        readCipher.close()
-        ct = ct.lstrip(ct[0:2])
-        ct = ct[:len(ct)-1]
-        ct = binascii.unhexlify(ct)
-        
-        print(ct)
-        print(type(ct))
-        aes3 = pyaes.AESModeOfOperationCTR(key256, pyaes.Counter(iv))
-        decrypted = aes3.decrypt(ct)
-        print("Decrypted: ")
-        print(decrypted)
-        print('------------------------------------------')
-
-        UI()
-    else:
-        print('\nThe selected option is wrong. Please try again')
-        UI()
 
 def readkey():
     readkeyf = open("key.txt", "r")
